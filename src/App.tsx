@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { useEffect } from "react";
 import { UserLoanDetailPage } from "./pages/UserLoanDetailPage";
+import BankMandate from "./pages/BankMandate";
 
 const queryClient = new QueryClient();
 
@@ -21,7 +22,7 @@ const App = () => {
 
   useEffect(() => {
     loadUser();
-  }, []);
+  }, [dispatch]); // Added dispatch to dependencies
 
   const loadUser = async () => {
     try {
@@ -63,6 +64,14 @@ const App = () => {
                     path="/api/userdetail/:id"
                     element={<UserLoanDetailPage />}
                   />
+                  <Route path="/api/applicant"></Route>
+
+                  {/* Bank Mandate Routes */}
+
+                  <Route
+                    path="/api/bankmandate/:id"
+                    element={<BankMandate />}
+                  />
 
                   <Route path="*" element={<NotFound />} />
                 </Routes>
@@ -74,4 +83,5 @@ const App = () => {
     </QueryClientProvider>
   );
 };
+
 export default App;
