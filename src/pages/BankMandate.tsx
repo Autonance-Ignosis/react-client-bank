@@ -37,8 +37,9 @@ export default function BankMandate() {
   const [error, setError] = useState(null);
   const [retryCount, setRetryCount] = useState(0);
 
-  const user = useSelector((state) => state?.user?.user || {});
+  const user = useSelector((state: any) => state?.user?.user || {});
   const userId = user?.id;
+  const bank = user?.bank || null;
 
   const fetchData = async () => {
     if (!userId) {
@@ -51,27 +52,9 @@ export default function BankMandate() {
     setError(null);
 
     try {
-      const bankResponse = await fetch(
-        `http://localhost:8080/api/banks/user/${userId}`
-      );
-
-      if (!bankResponse.ok) {
-        const errorText = await bankResponse.text();
-        throw new Error(
-          `Failed to fetch bank data (${bankResponse.status}): ${
-            errorText || "Unknown error"
-          }`
-        );
-      }
-
-      const bankData = await bankResponse.json();
-      console.log("Bank Data:", bankData);
-      setBankLoading(false);
-
-      setMandateLoading(true);
       const mandateResults = [];
 
-      const bank = bankData; // Assuming single bank object is returned
+
 
       try {
         const mandateResponse = await fetch(
@@ -81,8 +64,7 @@ export default function BankMandate() {
         if (!mandateResponse.ok) {
           const errorText = await mandateResponse.text();
           throw new Error(
-            `Failed to fetch mandates (${mandateResponse.status}): ${
-              errorText || "Unknown error"
+            `Failed to fetch mandates (${mandateResponse.status}): ${errorText || "Unknown error"
             }`
           );
         }
@@ -130,7 +112,7 @@ export default function BankMandate() {
   };
 
   if (!userId) {
-    return <NotFound message="Please log in to view your bank mandates" />;
+    return <NotFound />;
   }
 
   const formatDate = (dateString) => {
@@ -149,7 +131,7 @@ export default function BankMandate() {
 
   return (
     <>
-      <Header />
+
       <main className="max-w-6xl mx-auto px-4 py-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
@@ -175,8 +157,8 @@ export default function BankMandate() {
                 {bankLoading
                   ? "Fetching your banks..."
                   : mandateLoading
-                  ? "Loading your mandates..."
-                  : "Loading..."}
+                    ? "Loading your mandates..."
+                    : "Loading..."}
               </p>
             </div>
           </div>

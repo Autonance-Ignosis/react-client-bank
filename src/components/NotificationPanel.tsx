@@ -99,7 +99,7 @@ export function NotificationPanel({ bankId }) {
   // Navigate to user detail page
   const handleViewApplication = (loanid) => {
     if (!loanid) return;
-    navigate(`/api/userdetail/${loanid}`);
+    navigate(`/user-detail/${loanid}`);
   };
 
   return (
@@ -115,9 +115,8 @@ export function NotificationPanel({ bankId }) {
           {loading
             ? "Loading loan applications..."
             : !bankLoans || bankLoans.length === 0
-            ? "No loan applications found"
-            : `You have ${bankLoans.length} loan ${
-                bankLoans.length === 1 ? "application" : "applications"
+              ? "No loan applications found"
+              : `You have ${bankLoans.length} loan ${bankLoans.length === 1 ? "application" : "applications"
               }`}
         </CardDescription>
       </CardHeader>
@@ -174,13 +173,12 @@ export function NotificationPanel({ bankId }) {
                       <p className="text-sm">
                         <span className="font-medium">Status:</span>{" "}
                         <span
-                          className={`font-medium ${
-                            loan.status === "APPROVED"
-                              ? "text-green-600"
-                              : loan.status === "REJECTED"
+                          className={`font-medium ${loan.status === "APPROVED"
+                            ? "text-green-600"
+                            : loan.status === "REJECTED"
                               ? "text-red-600"
                               : "text-yellow-600"
-                          }`}
+                            }`}
                         >
                           {loan.status || "PENDING"}
                         </span>

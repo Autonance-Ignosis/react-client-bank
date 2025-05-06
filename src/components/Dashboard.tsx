@@ -1,10 +1,6 @@
-import { useLoan } from "@/contexts/LoanContext";
-import { DashboardStats } from "@/components/DashboardStats";
 import { NotificationPanel } from "@/components/NotificationPanel";
-import { LoanResults } from "@/components/LoanResults";
 
 export function Dashboard({ bankData }) {
-  const { currentApplication } = useLoan();
 
   return (
     <div className="container py-8 space-y-8">
@@ -18,16 +14,10 @@ export function Dashboard({ bankData }) {
           </p>
         </div>
       )}
+      <NotificationPanel bankId={bankData?.id} />
 
-      {currentApplication ? (
-        <LoanResults />
-      ) : (
-        <>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-          <DashboardStats bankData={bankData} />
-          <NotificationPanel bankId={bankData?.id} />
-        </>
-      )}
+
+
     </div>
   );
 }
