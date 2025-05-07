@@ -58,6 +58,20 @@ export function Sidebar({ className }: SidebarProps) {
   ];
 
 
+  const getNavItems = () => {
+    // If user is null, only show Home
+    if (!user || user.role !== "BANK") {
+      return allNavItems.filter((item) => item.name === "Home");
+    }
+
+  
+    return allNavItems;
+
+  };
+
+  const navItems = getNavItems();
+
+
 
   return (
     <>
@@ -87,7 +101,7 @@ export function Sidebar({ className }: SidebarProps) {
             </div>
 
             <nav className="space-y-1">
-              {allNavItems.map((item) => (
+              {navItems.map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}

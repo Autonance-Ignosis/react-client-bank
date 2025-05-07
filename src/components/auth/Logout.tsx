@@ -49,7 +49,7 @@ export default function Logout() {
                 <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                         <Avatar>
-                            <AvatarImage src="https://github.com/shadcn.png" alt="User" />
+                            <AvatarImage src={user.picture} alt="User" />
                             <AvatarFallback>SC</AvatarFallback>
                         </Avatar>
                     </Button>

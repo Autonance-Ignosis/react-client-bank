@@ -27,11 +27,69 @@ import {
 
 export function UserLoanDetailPage() {
   const { id } = useParams();
+  console.log("Loan ID from URL:", id);
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loan, setLoan] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+
+
+const acceptedloan = async () => {
+  try {
+    console.log('Sending request to approve loan...');
+    const response = await fetch(
+      `http://localhost:8080/api/loans/${id}/approve`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Failed to approve loan");
+    }
+    const data = await response.json();
+    console.log("Loan approved:", data);
+    
+    console.log('Sending SMS...');
+    
+    console.log('Navigating...');
+    navigate(-1);
+  } catch (error) {
+    console.error("Error approving loan:", error);
+  }
+};
+
+const rejectedloan = async () => {
+  try {
+    console.log('Sending request to reject loan...');
+    const response = await fetch(
+      `http://localhost:8080/api/loans/${id}/reject`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Failed to reject loan");
+    }
+    const data = await response.json();
+    console.log("Loan rejected:", data);
+    
+    console.log('Sending SMS...');
+    
+    console.log('Navigating...');
+    navigate(-1);
+
+  } catch (error) {
+    console.error("Error rejecting loan:", error);
+  }
+};
 
   //   console.log("User ID from URL:", userid);
   console.log("Loan ID from URL:", id);
@@ -408,8 +466,8 @@ export function UserLoanDetailPage() {
             <div className="w-full">
               {loan.status === "PENDING" && (
                 <div className="flex gap-2 justify-end">
-                  <Button variant="destructive">Reject</Button>
-                  <Button variant="default">Approve</Button>
+                  <Button variant="destructive" onClick={rejectedloan}>Reject</Button>
+                  <Button variant="default" onClick={acceptedloan}>Approve</Button>
                 </div>
               )}
               {loan.status === "APPROVED" && (

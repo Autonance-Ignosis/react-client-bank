@@ -8,7 +8,7 @@ export function Header() {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   // Safely access user object from Redux store
-  const user = useSelector((state) => state.user?.user);
+  const user = useSelector((state:any) => state.user?.user);
 
   const userName = user?.name || "Guest";
   const userEmail = user?.email || "";

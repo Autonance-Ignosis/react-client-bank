@@ -15,6 +15,7 @@ import BankMandate from "./pages/BankMandate";
 import { MainLayout } from "./components/layout/MainLayout";
 import { ThemeProvider } from "./components/layout/ThemeProvider";
 import { Dashboard } from "./components/Dashboard";
+import ProtectedRoute from "./components/auth/Protection";
 
 const queryClient = new QueryClient();
 
@@ -26,11 +27,7 @@ const App = () => {
 
   const isBank = user?.role === "BANK" || false;
   const [bank, setBank] = useState(null);
-
-
-
-
-
+  
   useEffect(() => {
     loadUser();
 
@@ -44,7 +41,7 @@ const App = () => {
           Accept: "application/json",
         },
       });
-
+      console.log("User data:", data);
       const { data: bankData } = await axios.get(
         `http://localhost:8080/api/banks/user/${data.id}`,
         {
@@ -54,6 +51,7 @@ const App = () => {
           },
         }
       );
+      console.log("Bank data:", bankData);
       if (data && bankData) {
         const userData = {
           ...data,
@@ -61,8 +59,6 @@ const App = () => {
         };
         dispatch({ type: "SET_USER", payload: userData });
       }
-
-
     } catch (error) {
       console.error(error);
       dispatch({ type: "SET_USER", payload: null });
@@ -87,22 +83,24 @@ const App = () => {
                     <Route
                       path="/"
                       element={
-                        // <RequireAuth>
                         <Index />
-                        // </RequireAuth>
                       }
                     />
                     <Route
                       path="/dashboard"
                       element={
-                        // <RequireAuth>
-                        <Dashboard bankData={user?.bank} />
-                        // </RequireAuth>
+                        <ProtectedRoute>
+                          <Dashboard bankData={user?.bank} />
+                        </ProtectedRoute>
                       }
                     />
                     <Route
                       path="/user-detail/:id"
-                      element={<UserLoanDetailPage />}
+                      element={
+                        <ProtectedRoute>
+                          <UserLoanDetailPage />
+                        </ProtectedRoute>
+                    }
                     />
                     <Route path="/api/applicant"></Route>
 
@@ -110,7 +108,11 @@ const App = () => {
 
                     <Route
                       path="/bank-mandates"
-                      element={<BankMandate />}
+                      element={
+                        <ProtectedRoute>
+                          <BankMandate />
+                        </ProtectedRoute>
+                      }
                     />
 
                     <Route path="*" element={<NotFound />} />
