@@ -53,8 +53,8 @@ export function Sidebar({ className }: SidebarProps) {
     { name: 'Home', path: '/', icon: Home },
     { name: 'Dashboard', path: '/dashboard', icon: FileClock },
     { name: 'Mandates', path: '/bank-mandates/', icon: CreditCard },
-    { name: 'Notifications', path: '/notifications', icon: Bell },
-    { name: 'Settings', path: '/settings', icon: Settings },
+    // { name: 'Notifications', path: '/notifications', icon: Bell },
+    // { name: 'Settings', path: '/settings', icon: Settings },
   ];
 
 
@@ -118,33 +118,6 @@ export function Sidebar({ className }: SidebarProps) {
             </nav>
           </div>
 
-          <div className="mt-auto p-4 border-t border-border">
-            {/* Always show AI Assistant regardless of user status */}
-            <Button
-              variant="ghost"
-              className={cn(
-                "w-full text-left text-amber-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/30",
-                collapsed && !isMobile ? "justify-center" : "justify-start"
-              )}
-            >
-              <MessageSquare className="w-5 h-5" />
-              {!collapsed || isMobile ? <span className="ml-2">AI Assistant</span> : null}
-            </Button>
-
-            {/* Only show Logout if user exists */}
-            {user && (
-              <Button
-                variant="ghost"
-                className={cn(
-                  "w-full text-muted-foreground mt-2",
-                  collapsed && !isMobile ? "justify-center" : "justify-start"
-                )}
-              >
-                <LogOut className="w-5 h-5" />
-                {!collapsed || isMobile ? <span className="ml-2">Logout</span> : null}
-              </Button>
-            )}
-          </div>
 
           {/* Collapse/Expand Button (only visible on desktop) */}
           <Button

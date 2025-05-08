@@ -45,34 +45,6 @@ export function Header() {
           <div className="flex items-center gap-2">
             <ThemeToggle />
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="relative">
-                  <Bell className="h-5 w-5" />
-                  <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-80">
-                <DropdownMenuLabel>Notifications</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <div className="max-h-80 overflow-auto">
-                  <DropdownMenuItem className="cursor-pointer">
-                    <div className="flex flex-col gap-1">
-                      <p className="text-sm font-medium">EMI Payment Due</p>
-                      <p className="text-xs text-muted-foreground">Your EMI payment of ₹12,500 is due tomorrow</p>
-                    </div>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem className="cursor-pointer">
-                    <div className="flex flex-col gap-1">
-                      <p className="text-sm font-medium">KYC Verified</p>
-                      <p className="text-xs text-muted-foreground">Your KYC documents have been verified</p>
-                    </div>
-                  </DropdownMenuItem>
-                </div>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
             {
               user ? (
                 <Logout />

@@ -9,9 +9,6 @@ export function Dashboard({ bankData }) {
           <h2 className="text-xl font-semibold text-blue-800 mb-2">
             {bankData.name || "Bank Portal"}
           </h2>
-          <p className="text-blue-600">
-            Bank ID: {bankData.id || "Loading..."}
-          </p>
         </div>
       )}
       <NotificationPanel bankId={bankData?.id} />
