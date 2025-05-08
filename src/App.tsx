@@ -16,6 +16,7 @@ import { MainLayout } from "./components/layout/MainLayout";
 import { ThemeProvider } from "./components/layout/ThemeProvider";
 import { Dashboard } from "./components/Dashboard";
 import ProtectedRoute from "./components/auth/Protection";
+import MandateDetails from "./components/MandateDetails";
 
 const queryClient = new QueryClient();
 
@@ -27,7 +28,7 @@ const App = () => {
 
   const isBank = user?.role === "BANK" || false;
   const [bank, setBank] = useState(null);
-  
+
   useEffect(() => {
     loadUser();
 
@@ -100,7 +101,7 @@ const App = () => {
                         <ProtectedRoute>
                           <UserLoanDetailPage />
                         </ProtectedRoute>
-                    }
+                      }
                     />
                     <Route path="/api/applicant"></Route>
 
@@ -111,6 +112,15 @@ const App = () => {
                       element={
                         <ProtectedRoute>
                           <BankMandate />
+                        </ProtectedRoute>
+                      }
+                    />
+
+                    <Route
+                      path="/bank-mandates/:mandateId"
+                      element={
+                        <ProtectedRoute>
+                          <MandateDetails />
                         </ProtectedRoute>
                       }
                     />
