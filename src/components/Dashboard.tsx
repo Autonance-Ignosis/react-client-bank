@@ -7,7 +7,13 @@ export function Dashboard({ bankData }) {
       {bankData && (
         <div className="bg-blue-50 p-4 mb-6 rounded-lg border border-blue-200">
           <h2 className="text-xl font-semibold text-blue-800 mb-2">
-            {bankData.name || "Bank Portal"}
+            <p>
+              {bankData.name || "Bank Portal"} 
+            </p>
+            <p>
+              ISFC CODE : {bankData.ifsc}
+            </p>
+
           </h2>
         </div>
       )}

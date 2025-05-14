@@ -11,17 +11,29 @@ import {
   Info,
   User,
   DollarSign,
+  Search,
+  Filter,
+  SlidersHorizontal,
+  ChevronRight,
 } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import NotFound from "./NotFound";
 
+// Import UI components
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+
 const STATUS_COLORS = {
-  ACTIVE: "text-green-500",
-  EXPIRED: "text-red-500",
-  PENDING: "text-yellow-500",
-  REVOKED: "text-gray-500",
-  DEFAULT: "text-blue-500",
+  ACTIVE: "bg-green-100 text-green-800 hover:bg-green-200",
+  EXPIRED: "bg-red-100 text-red-800 hover:bg-red-200",
+  PENDING: "bg-yellow-100 text-yellow-800 hover:bg-yellow-200",
+  REVOKED: "bg-gray-100 text-gray-800 hover:bg-gray-200",
+  DEFAULT: "bg-blue-100 text-blue-800 hover:bg-blue-200",
 };
 
 const STATUS_ICONS = {
@@ -39,6 +51,8 @@ export default function BankMandate() {
   const [mandateLoading, setMandateLoading] = useState(false);
   const [error, setError] = useState(null);
   const [retryCount, setRetryCount] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("ALL");
 
   const navigate = useNavigate();
 
@@ -67,8 +81,7 @@ export default function BankMandate() {
         if (!mandateResponse.ok) {
           const errorText = await mandateResponse.text();
           throw new Error(
-            `Failed to fetch mandates (${mandateResponse.status}): ${errorText || "Unknown error"
-            }`
+            `Failed to fetch mandates (${mandateResponse.status}): ${errorText || "Unknown error"}`
           );
         }
 
@@ -148,146 +161,228 @@ export default function BankMandate() {
 
   const getStatusIcon = (status) => {
     const IconComponent = STATUS_ICONS[status] || STATUS_ICONS.DEFAULT;
-    const colorClass = STATUS_COLORS[status] || STATUS_COLORS.DEFAULT;
-    return <IconComponent className={`${colorClass} h-4 w-4 mr-1`} />;
+    return <IconComponent className="h-4 w-4 mr-1" />;
   };
 
+  // Filter mandates based on search term and status
+  const filteredMandates = bankMandates.filter((mandate) => {
+    // const matchesSearch = mandate.id?.includes(searchTerm.toLowerCase()) ||
+    //   mandate.bankName?.includes(searchTerm.toLowerCase());
+
+    const matchesStatus = filterStatus === "ALL" || mandate.status === filterStatus;
+
+    return matchesStatus;
+  });
+
   return (
-    <>
-      <div className="max-w-6xl mx-auto px-4 py-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-            Your Bank Mandates
-          </h1>
-          <button
-            onClick={handleRetry}
-            disabled={loading}
-            className="flex items-center px-3 py-1 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-md text-sm transition-colors"
-          >
-            <RefreshCcw
-              className={`h-4 w-4 mr-1 ${loading ? "animate-spin" : ""}`}
-            />
-            Refresh
-          </button>
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Bank Mandates</h1>
+          <p className="text-gray-500 dark:text-gray-400">
+            Manage your bank mandate authorizations and recurring payments
+          </p>
         </div>
+        <Button
+          onClick={handleRetry}
+          variant="outline"
+          disabled={loading}
+          className="flex items-center self-start"
+        >
+          <RefreshCcw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
+          Refresh
+        </Button>
+      </div>
 
-        {loading && (
-          <div className="flex justify-center items-center py-10">
-            <div className="text-center">
-              <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-2" />
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                {bankLoading
-                  ? "Fetching your banks..."
-                  : mandateLoading
-                    ? "Loading your mandates..."
-                    : "Loading..."}
-              </p>
+      {/* Search and filter */}
+      <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="relative col-span-2">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Input
+            placeholder="Search by mandate ID or bank name..."
+            className="pl-10"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <Select value={filterStatus} onValueChange={setFilterStatus}>
+          <SelectTrigger>
+            <div className="flex items-center">
+              <SlidersHorizontal className="w-4 h-4 mr-2" />
+              <SelectValue placeholder="Filter by status" />
             </div>
-          </div>
-        )}
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ALL">All Statuses</SelectItem>
+            <SelectItem value="ACTIVE">Active</SelectItem>
+            <SelectItem value="PENDING">Pending</SelectItem>
+            <SelectItem value="EXPIRED">Expired</SelectItem>
+            <SelectItem value="REVOKED">Revoked</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
-        {error && !loading && (
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
-            <div className="flex items-center mb-2">
-              <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 mr-2" />
-              <h3 className="font-medium text-red-700 dark:text-red-400">
-                Error loading mandates
-              </h3>
-            </div>
+      {loading && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3].map((i) => (
+            <Card key={i} className="overflow-hidden">
+              <CardHeader className="pb-2">
+                <Skeleton className="h-6 w-3/4 mb-2" />
+                <Skeleton className="h-4 w-1/2" />
+              </CardHeader>
+              <CardContent className="pb-4">
+                <div className="space-y-3">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-5/6" />
+                  <Skeleton className="h-4 w-4/6" />
+                </div>
+              </CardContent>
+              <CardFooter>
+                <Skeleton className="h-9 w-full" />
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {error && !loading && (
+        <Card className="border-red-200 dark:border-red-800 mb-6">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center text-red-600 dark:text-red-400">
+              <AlertCircle className="w-5 h-5 mr-2" />
+              Error loading mandates
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pb-4">
             <p className="text-sm text-red-600 dark:text-red-300 mb-3">
               {error}
             </p>
-            <button
+          </CardContent>
+          <CardFooter>
+            <Button
               onClick={handleRetry}
-              className="text-sm px-3 py-1 bg-red-100 dark:bg-red-800 text-red-700 dark:text-red-300 rounded-md hover:bg-red-200 dark:hover:bg-red-700"
+              variant="destructive"
+              size="sm"
             >
               Try again
-            </button>
-          </div>
-        )}
+            </Button>
+          </CardFooter>
+        </Card>
+      )}
 
-        {!loading && !error && bankMandates.length === 0 && (
-          <div className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-8 text-center">
+      {!loading && !error && filteredMandates.length === 0 && (
+        <Card className="text-center py-8">
+          <CardContent>
             <Building className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-3" />
             <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-1">
-              No mandates found
+              {bankMandates.length === 0
+                ? "No mandates found"
+                : "No matching mandates"}
             </h3>
             <p className="text-gray-500 dark:text-gray-400 mb-4">
-              You currently don't have any active mandates with your banks.
+              {bankMandates.length === 0
+                ? "You currently don't have any active mandates with your banks."
+                : "Try adjusting your search or filter criteria."}
             </p>
-          </div>
-        )}
-
-        {!loading && !error && bankMandates.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {bankMandates.map((mandate, index) => (
-              <div
-                key={`${mandate.bankId}-${mandate.id || index}`}
-                className="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow cursor-pointer"
-                onClick={() => navigateToMandateDetails(mandate)}
+            {bankMandates.length > 0 && (
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setSearchTerm("");
+                  setFilterStatus("ALL");
+                }}
               >
-                <div className="bg-blue-50 dark:bg-blue-900/20 px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                Clear filters
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {!loading && !error && filteredMandates.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredMandates.map((mandate, index) => (
+            <Card
+              key={`${mandate.bankId}-${mandate.id || index}`}
+              className="overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+              onClick={() => navigateToMandateDetails(mandate)}
+            >
+              <CardHeader className="bg-gray-50 dark:bg-gray-800/50 pb-3 pt-3">
+                <div className="flex justify-between items-center">
                   <div className="flex items-center">
                     <Building className="h-5 w-5 mr-2 text-blue-600 dark:text-blue-400" />
-                    <span className="font-semibold text-gray-800 dark:text-gray-100">
+                    <CardTitle className="text-base font-medium">
                       {mandate.bankName || "Unknown Bank"}
-                    </span>
+                    </CardTitle>
                   </div>
-                  <div className="flex items-center">
-                    {getStatusIcon(mandate.status)}
-                    <span
-                      className={`text-xs font-medium ${STATUS_COLORS[mandate.status] || STATUS_COLORS.DEFAULT
-                        }`}
-                    >
+                  <Badge className={STATUS_COLORS[mandate.status] || STATUS_COLORS.DEFAULT}>
+                    <span className="flex items-center">
+                      {getStatusIcon(mandate.status)}
                       {mandate.status || "UNKNOWN"}
                     </span>
-                  </div>
+                  </Badge>
                 </div>
+              </CardHeader>
 
-                <div className="p-4">
-                  <div className="space-y-2 mb-3">
-                    <div className="text-sm text-gray-700 dark:text-gray-300">
-                      <span className="font-medium">Mandate ID:</span>{" "}
-                      <span className="font-mono">{mandate.id || "N/A"}</span>
-                    </div>
-                    <div className="flex items-center text-sm text-gray-700 dark:text-gray-300">
-                      <DollarSign className="h-4 w-4 mr-1.5 text-gray-500" />
-                      Amount: ₹{mandate.amount?.toLocaleString() || "N/A"}
-                    </div>
-                    <div className="flex items-center text-sm text-gray-700 dark:text-gray-300">
-                      <Calendar className="h-4 w-4 mr-1.5 text-gray-500" />
-                      Start:{" "}
-                      {mandate.startDate || formatDate(mandate.createdAt)}
-                    </div>
-                    <div className="flex items-center text-sm text-gray-700 dark:text-gray-300">
-                      <Clock className="h-4 w-4 mr-1.5 text-gray-500" />
-                      Valid Till: {mandate.uptoDate || "N/A"}
-                    </div>
-                    <div className="flex items-center text-sm text-gray-700 dark:text-gray-300">
-                      <Info className="h-4 w-4 mr-1.5 text-gray-500" />
-                      {mandate.freqType || "N/A"}{" "}
-                      {mandate.debitType?.toLowerCase() || ""} debit
-                    </div>
+              <CardContent className="pt-4">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Mandate ID</span>
+                    <span className="font-mono text-sm">{mandate.id || "N/A"}</span>
                   </div>
 
-                  <div className="flex justify-center mt-4">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigateToMandateDetails(mandate);
-                      }}
-                      className="px-4 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-md text-sm font-medium transition-colors flex items-center"
-                    >
-                      <Info className="h-4 w-4 mr-1.5" />
-                      View Details
-                    </button>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center">
+                      <DollarSign className="h-4 w-4 mr-1 text-gray-400" />
+                      Amount
+                    </span>
+                    <span className="font-medium">₹{mandate.amount?.toLocaleString() || "N/A"}</span>
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center">
+                      <Calendar className="h-4 w-4 mr-1 text-gray-400" />
+                      Start Date
+                    </span>
+                    <span>{formatDate(mandate.startDate || mandate.createdAt)}</span>
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center">
+                      <Clock className="h-4 w-4 mr-1 text-gray-400" />
+                      Valid Till
+                    </span>
+                    <span>{formatDate(mandate.uptoDate)}</span>
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center">
+                      <Info className="h-4 w-4 mr-1 text-gray-400" />
+                      Debit Type
+                    </span>
+                    <span className="capitalize">{mandate.freqType || "N/A"} {mandate.debitType?.toLowerCase() || ""}</span>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </>
+              </CardContent>
+
+              <CardFooter className="pt-2">
+                <Button
+                  variant="outline"
+                  className="w-full flex items-center justify-center text-blue-600 border-blue-200 hover:bg-blue-50 hover:border-blue-300"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigateToMandateDetails(mandate);
+                  }}
+                >
+                  <Info className="h-4 w-4 mr-2" />
+                  View Details
+                  <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

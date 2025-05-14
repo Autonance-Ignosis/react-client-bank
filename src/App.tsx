@@ -96,7 +96,7 @@ const App = () => {
                       }
                     />
                     <Route
-                      path="/user-detail/:id"
+                      path="/loan-detail/:id"
                       element={
                         <ProtectedRoute>
                           <UserLoanDetailPage />

@@ -23,76 +23,64 @@ import {
   ShieldCheck,
   User,
   X,
+  ArrowLeft,
+  Briefcase,
+  GraduationCap,
+  Car,
+  AlertTriangle
 } from "lucide-react";
 
 export function UserLoanDetailPage() {
   const { id } = useParams();
-  console.log("Loan ID from URL:", id);
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loan, setLoan] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-
-
-const acceptedloan = async () => {
-  try {
-    console.log('Sending request to approve loan...');
-    const response = await fetch(
-      `http://localhost:8080/api/loans/${id}/approve`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
+  const acceptLoan = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/loans/${id}/approve`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to approve loan");
       }
-    );
-    if (!response.ok) {
-      throw new Error("Failed to approve loan");
+      const data = await response.json();
+      console.log("Loan approved:", data);
+      navigate(-1);
+    } catch (error) {
+      console.error("Error approving loan:", error);
     }
-    const data = await response.json();
-    console.log("Loan approved:", data);
-    
-    console.log('Sending SMS...');
-    
-    console.log('Navigating...');
-    navigate(-1);
-  } catch (error) {
-    console.error("Error approving loan:", error);
-  }
-};
+  };
 
-const rejectedloan = async () => {
-  try {
-    console.log('Sending request to reject loan...');
-    const response = await fetch(
-      `http://localhost:8080/api/loans/${id}/reject`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
+  const rejectLoan = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/loans/${id}/reject`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to reject loan");
       }
-    );
-    if (!response.ok) {
-      throw new Error("Failed to reject loan");
+      const data = await response.json();
+      console.log("Loan rejected:", data);
+      navigate(-1);
+    } catch (error) {
+      console.error("Error rejecting loan:", error);
     }
-    const data = await response.json();
-    console.log("Loan rejected:", data);
-    
-    console.log('Sending SMS...');
-    
-    console.log('Navigating...');
-    navigate(-1);
-
-  } catch (error) {
-    console.error("Error rejecting loan:", error);
-  }
-};
-
-  //   console.log("User ID from URL:", userid);
-  console.log("Loan ID from URL:", id);
+  };
 
   useEffect(() => {
     const fetchUserAndLoanDetails = async () => {
@@ -101,11 +89,6 @@ const rejectedloan = async () => {
         setLoading(false);
         return;
       }
-      //   if (!userid) {
-      //     setError("No user ID provided");
-      //     setLoading(false);
-      //     return;
-      //   }
 
       setLoading(true);
       setError(null);
@@ -119,8 +102,7 @@ const rejectedloan = async () => {
         }
         const loanData = await loanResponse.json();
 
-        const userid = loanData.userId; // Use the userId from loanData if available
-        // Fetch user details
+        const userid = loanData.userId;
         const userResponse = await fetch(
           `http://localhost:8080/api/user/${userid}`
         );
@@ -128,9 +110,6 @@ const rejectedloan = async () => {
           throw new Error(`Failed to fetch user: ${userResponse.status}`);
         }
         const userData = await userResponse.json();
-        console.log("User Data:", userData);
-
-        // Fetch loan details for this user
 
         setUser(userData);
         setLoan(loanData);
@@ -180,21 +159,28 @@ const rejectedloan = async () => {
       APPROVED: {
         variant: "success",
         icon: <Check className="w-4 h-4 mr-1" />,
+        className: "bg-green-100 text-green-800 border-green-200"
       },
       REJECTED: {
         variant: "destructive",
         icon: <X className="w-4 h-4 mr-1" />,
+        className: "bg-red-100 text-red-800 border-red-200"
       },
-      PENDING: { variant: "warning", icon: <Clock className="w-4 h-4 mr-1" /> },
+      PENDING: {
+        variant: "warning",
+        icon: <Clock className="w-4 h-4 mr-1" />,
+        className: "bg-yellow-100 text-yellow-800 border-yellow-200"
+      },
     };
 
-    const { variant, icon } = statusProps[status] || {
+    const { variant, icon, className } = statusProps[status] || {
       variant: "secondary",
       icon: null,
+      className: ""
     };
 
     return (
-      <Badge variant={variant} className="flex items-center">
+      <Badge variant={variant} className={`flex items-center px-3 py-1 rounded-full font-medium ${className}`}>
         {icon}
         {status}
       </Badge>
@@ -209,21 +195,28 @@ const rejectedloan = async () => {
       APPROVED: {
         variant: "success",
         icon: <ShieldCheck className="w-4 h-4 mr-1" />,
+        className: "bg-green-100 text-green-800 border-green-200"
       },
       REJECTED: {
         variant: "destructive",
         icon: <X className="w-4 h-4 mr-1" />,
+        className: "bg-red-100 text-red-800 border-red-200"
       },
-      PENDING: { variant: "warning", icon: <Clock className="w-4 h-4 mr-1" /> },
+      PENDING: {
+        variant: "warning",
+        icon: <Clock className="w-4 h-4 mr-1" />,
+        className: "bg-yellow-100 text-yellow-800 border-yellow-200"
+      },
     };
 
-    const { variant, icon } = statusProps[status] || {
+    const { variant, icon, className } = statusProps[status] || {
       variant: "secondary",
       icon: null,
+      className: ""
     };
 
     return (
-      <Badge variant={variant} className="flex items-center">
+      <Badge variant={variant} className={`flex items-center px-3 py-1 rounded-full font-medium ${className}`}>
         {icon}
         {status}
       </Badge>
@@ -237,14 +230,14 @@ const rejectedloan = async () => {
 
     const purposeMap = {
       home: { label: "Home Loan", icon: <Home className="w-5 h-5" /> },
-      car: { label: "Car Loan", icon: <CreditCard className="w-5 h-5" /> },
+      car: { label: "Car Loan", icon: <Car className="w-5 h-5" /> },
       education: {
         label: "Education Loan",
-        icon: <FileText className="w-5 h-5" />,
+        icon: <GraduationCap className="w-5 h-5" />,
       },
       business: {
         label: "Business Loan",
-        icon: <DollarSign className="w-5 h-5" />,
+        icon: <Briefcase className="w-5 h-5" />,
       },
       personal: { label: "Personal Loan", icon: <User className="w-5 h-5" /> },
     };
@@ -259,10 +252,10 @@ const rejectedloan = async () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[500px]">
+      <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-lg">Loading details...</p>
+          <p className="text-lg font-medium">Loading details...</p>
         </div>
       </div>
     );
@@ -270,42 +263,56 @@ const rejectedloan = async () => {
 
   if (error) {
     return (
-      <Card className="border-destructive">
-        <CardHeader>
-          <CardTitle className="flex items-center text-destructive">
-            <AlertCircle className="w-5 h-5 mr-2" />
-            Error Loading Details
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p>{error}</p>
-          <Button onClick={() => navigate(-1)} className="mt-4">
-            Go Back
-          </Button>
-        </CardContent>
-      </Card>
+      <div className="container mx-auto py-8 px-4 max-w-2xl">
+        <Card className="border-red-300 shadow-lg">
+          <CardHeader className="bg-red-50">
+            <CardTitle className="flex items-center text-red-700">
+              <AlertCircle className="w-5 h-5 mr-2" />
+              Error Loading Details
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <p className="mb-6">{error}</p>
+            <Button
+              onClick={() => navigate(-1)}
+              className="bg-blue-600 hover:bg-blue-700"
+              size="sm"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Go Back
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
   if (!user || !loan) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>User or Loan Not Found</CardTitle>
-          <CardDescription>
-            We couldn't find the requested information.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p>
-            The user or loan details you're looking for don't exist or may have
-            been removed.
-          </p>
-          <Button onClick={() => navigate(-1)} className="mt-4">
-            Go Back
-          </Button>
-        </CardContent>
-      </Card>
+      <div className="container mx-auto py-8 px-4 max-w-2xl">
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle>User or Loan Not Found</CardTitle>
+            <CardDescription>
+              We couldn't find the requested information.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="mb-6">
+              The user or loan details you're looking for don't exist or may have
+              been removed.
+            </p>
+            <Button
+              onClick={() => navigate(-1)}
+              className="bg-blue-600 hover:bg-blue-700"
+              size="sm"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Go Back
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
@@ -313,170 +320,156 @@ const rejectedloan = async () => {
   const { label: purposeLabel, icon: purposeIcon } = getPurposeInfo(
     loan.purpose
   );
-  console.log("loan detail" + loan);
-  console.log(loan);
 
   return (
-    <div className="container mx-auto py-8 max-w-6xl">
-      <div className="flex items-center mb-6">
-        <Button variant="outline" onClick={() => navigate(-1)} className="mr-4">
+    <div className="container mx-auto py-8 px-4 max-w-6xl">
+      <div className="flex items-center mb-8">
+        <Button
+          variant="outline"
+          onClick={() => navigate(-1)}
+          className="mr-4 border-gray-300"
+          size="sm"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
           Back
         </Button>
-        <h1 className="text-3xl font-bold">User & Loan Details</h1>
+        <h1 className="text-2xl md:text-3xl font-bold">Loan Application Details</h1>
+        <div className="ml-auto">
+          {loan && getStatusBadge(loan.status)}
+        </div>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid md:grid-cols-12 gap-6">
         {/* User Information Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span>User Information</span>
+        <Card className="md:col-span-5 shadow-md hover:shadow-lg transition-shadow duration-300">
+          <CardHeader className="bg-gray-50 dark:bg-gray-800 border-b dark:border-gray-700">
+            <div className="flex justify-between items-center">
+              <CardTitle className="text-xl text-gray-900 dark:text-gray-100">Applicant Information</CardTitle>
               {user.flaggedAsRisk && (
-                <Badge variant="destructive" className="ml-2">
+                <Badge variant="destructive" className="bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 flex items-center">
+                  <AlertTriangle className="w-4 h-4 mr-1" />
                   Risk Flagged
                 </Badge>
               )}
-            </CardTitle>
-            <CardDescription>
-              Personal details of the loan applicant
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center mb-6">
-              {user.picture ? (
-                <img
-                  src={user.picture}
-                  alt={user.fullName}
-                  className="w-20 h-20 rounded-full mr-4 object-cover border"
-                />
-              ) : (
-                <div className="w-20 h-20 rounded-full mr-4 bg-muted flex items-center justify-center">
-                  <User className="w-10 h-10 text-muted-foreground" />
-                </div>
-              )}
-              <div>
-                <h3 className="text-xl font-medium">{user.fullName}</h3>
-                <p className="text-muted-foreground">{user.email}</p>
-              </div>
             </div>
-
-            <div className="space-y-4">
-              <div>
-                {/* <p className="text-sm font-medium mb-1">User ID</p> */}
-                {/* <p>{user.id}</p> */}
+          </CardHeader>
+          <CardContent className="pt-6">
+            <div className="space-y-5">
+              <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                <h3 className="text-lg font-semibold mb-1 text-gray-900 dark:text-gray-100">{user.fullName}</h3>
+                <p className="text-gray-600 dark:text-gray-400">{user.email}</p>
               </div>
 
-              <div>
-                <p className="text-sm font-medium mb-1">Role</p>
-                <p className="capitalize">
-                  {user.role?.toLowerCase() || "User"}
-                </p>
-              </div>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-5">
+                <div>
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Account Type</p>
+                  <p className="font-medium capitalize text-gray-900 dark:text-gray-100">{user.role?.toLowerCase() || "User"}</p>
+                </div>
 
-              <div>
-                <p className="text-sm font-medium mb-1">KYC Status</p>
-                {getKycBadge(user.kycStatus)}
-              </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">KYC Status</p>
+                  {getKycBadge(user.kycStatus)}
+                </div>
 
-              <div>
-                <p className="text-sm font-medium mb-1">Account Created</p>
-                <p className="flex items-center">
-                  <Calendar className="w-4 h-4 mr-1 text-muted-foreground" />
-                  {formatDate(user.createdAt)}
-                </p>
+                <div className="col-span-2">
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Account Created</p>
+                  <p className="flex items-center text-gray-900 dark:text-gray-100">
+                    <Calendar className="w-4 h-4 mr-2 text-blue-600 dark:text-blue-400" />
+                    {formatDate(user.createdAt)}
+                  </p>
+                </div>
               </div>
             </div>
           </CardContent>
         </Card>
 
         {/* Loan Details Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              {purposeIcon}
-              <span className="ml-2">{purposeLabel}</span>
-              <div className="ml-auto">{getStatusBadge(loan.status)}</div>
-            </CardTitle>
-            <CardDescription>Loan application details</CardDescription>
+        <Card className="md:col-span-7 shadow-md hover:shadow-lg transition-shadow duration-300">
+          <CardHeader className="bg-gray-50 dark:bg-gray-800 border-b dark:border-gray-700">
+            <div className="flex items-center">
+              <div className="bg-blue-100 dark:bg-blue-900 p-2 rounded-full mr-3">
+                {purposeIcon}
+              </div>
+              <div>
+                <CardTitle className="text-xl text-gray-900 dark:text-gray-100">{purposeLabel}</CardTitle>
+                <CardDescription className="mt-1 text-gray-600 dark:text-gray-400">Applied on {formatDate(loan.appliedAt)}</CardDescription>
+              </div>
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              <div>
-                <p className="text-sm font-medium mb-1">Loan ID</p>
-                <p>{loan.id}</p>
+          <CardContent className="pt-6">
+            <div className="flex flex-col gap-6">
+              {/* Loan Amount and Interest Rate */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-blue-50 dark:bg-blue-900 p-4 rounded-lg text-center">
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Loan Amount</p>
+                  <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">{formatCurrency(loan.amount)}</p>
+                </div>
+                <div className="bg-blue-50 dark:bg-blue-900 p-4 rounded-lg text-center">
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Interest Rate</p>
+                  <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">{loan.interestRate || "N/A"}%</p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm font-medium mb-1">Bank ID</p>
-                {/* <p>{loan.bankId || "N/A"}</p> */}
+
+              {/* Loan Details Grid */}
+              <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                <h3 className="font-medium mb-3 text-gray-700 dark:text-gray-200">Repayment Details</h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Tenure</p>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">{loan.tenureInMonths || "N/A"} months</p>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Monthly EMI</p>
+                    <p className="font-medium text-blue-700 dark:text-blue-300">{formatCurrency(loan.emi)}</p>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Total Repayment</p>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">{formatCurrency(loan.emi * loan.tenureInMonths)}</p>
+                  </div>
+                </div>
               </div>
-              <div>
-                <p className="text-sm font-medium mb-1">Applied Date</p>
-                <p className="flex items-center">
-                  <Calendar className="w-4 h-4 mr-1 text-muted-foreground" />
-                  {formatDate(loan.appliedAt)}
-                </p>
-              </div>
+
               {loan.status === "APPROVED" && loan.approvedAt && (
-                <div>
-                  <p className="text-sm font-medium mb-1">Approved Date</p>
-                  <p className="flex items-center">
-                    <Calendar className="w-4 h-4 mr-1 text-muted-foreground" />
-                    {formatDate(loan.approvedAt)}
-                  </p>
+                <div className="bg-green-50 dark:bg-green-900 p-4 rounded-lg">
+                  <div className="flex items-center text-green-800 dark:text-green-200">
+                    <Check className="w-5 h-5 mr-2" />
+                    <p className="font-medium">Approved on {formatDate(loan.approvedAt)}</p>
+                  </div>
                 </div>
               )}
             </div>
-
-            <Separator className="my-4" />
-
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <p className="text-sm font-medium">Loan Amount</p>
-                <p className="text-xl font-bold">
-                  {formatCurrency(loan.amount)}
-                </p>
-              </div>
-
-              <div className="flex justify-between items-center">
-                <p className="text-sm font-medium">Interest Rate</p>
-                <p className="font-semibold">{loan.interestRate || "N/A"}%</p>
-              </div>
-
-              <div className="flex justify-between items-center">
-                <p className="text-sm font-medium">Tenure</p>
-                <p className="font-semibold">
-                  {loan.tenureInMonths || "N/A"} months
-                </p>
-              </div>
-
-              <div className="flex justify-between items-center">
-                <p className="text-sm font-medium">Monthly EMI</p>
-                <p className="font-bold">{formatCurrency(loan.emi)}</p>
-              </div>
-
-              <div className="flex justify-between items-center">
-                <p className="text-sm font-medium">Total Repayment</p>
-                <p className="font-semibold">
-                  {formatCurrency(loan.emi * loan.tenureInMonths)}
-                </p>
-              </div>
-            </div>
           </CardContent>
-          <CardFooter>
+          <CardFooter className="bg-gray-50 dark:bg-gray-800 border-t dark:border-gray-700">
             <div className="w-full">
               {loan.status === "PENDING" && (
-                <div className="flex gap-2 justify-end">
-                  <Button variant="destructive" onClick={rejectedloan}>Reject</Button>
-                  <Button variant="default" onClick={acceptedloan}>Approve</Button>
+                <div className="flex gap-3 justify-end">
+                  <Button
+                    variant="outline"
+                    onClick={rejectLoan}
+                    className="border-red-300 text-red-700 dark:border-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900 hover:text-red-800 dark:hover:text-red-200"
+                  >
+                    <X className="w-4 h-4 mr-2" />
+                    Reject
+                  </Button>
+                  <Button
+                    variant="default"
+                    onClick={acceptLoan}
+                    className="bg-green-600 dark:bg-green-700 hover:bg-green-700 dark:hover:bg-green-800"
+                  >
+                    <Check className="w-4 h-4 mr-2" />
+                    Approve
+                  </Button>
                 </div>
               )}
               {loan.status === "APPROVED" && (
-                <p className="text-green-600 text-center font-medium">
+                <p className="text-green-600 dark:text-green-300 text-center font-medium flex items-center justify-center">
+                  <Check className="w-5 h-5 mr-2" />
                   This loan application has been approved
                 </p>
               )}
               {loan.status === "REJECTED" && (
-                <p className="text-red-600 text-center font-medium">
+                <p className="text-red-600 dark:text-red-300 text-center font-medium flex items-center justify-center">
+                  <X className="w-5 h-5 mr-2" />
                   This loan application has been rejected
                 </p>
               )}
